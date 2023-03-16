@@ -1,0 +1,26 @@
+[package]
+name = "sqlxtesting"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# rocket = { version = "0.5.0-rc.2", features = ["json"] }
+# rocket_dyn_templates = { version = "0.1.0-rc.1", features = ["tera"] }
+# rocket_db_pools = { version = "0.1.0-rc.2", features = ["sqlx", "sqlx_postgres"] }
+
+tokio = { version = "1", features = ["full"] }
+
+anyhow = "1.0.68"
+
+serde = { version = "1.0.117", features = ["derive"] }
+serde_json = "1.0.59"
+
+log = { version = "0.4", features = ["std", "serde"] }
+env_logger = "0.10"
+sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "postgres", "offline"] }
+
+
+
+
