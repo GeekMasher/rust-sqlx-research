@@ -12,19 +12,14 @@ struct User {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Input (default: "")
-    let input: String = env::args().last().unwrap_or(String::from(""));
-    println!(">>> Input <<<");
-    println!(" `{input}`");
-
     // Create DB connection
     let connection_url: String = std::env::var("DATABASE_URL")?;
     let pool = PgPool::connect(&connection_url).await?;
 
-    println!(">>> Running Query <<<");
+    // Input (default: "")
+    let input: String = env::args().last().unwrap_or(String::from(""));
 
-    let input_wide: String = format!("%{input}%");
-
+    // SQLx query_as macro (secure)
     let users: Vec<User> = sqlx::query_as!(
             User,
             "SELECT * FROM users WHERE username LIKE $1 OR handle LIKE $2",
@@ -33,7 +28,29 @@ async fn main() -> Result<()> {
         .fetch_all(&pool)
         .await?;
 
-    println!("User count :: {}", users.len());
+    // SQLx query_as function (secure)
+    let users: Vec<User> = sqlx::query_as::<_, User>("SELECT * FROM users WHERE username = $1")
+        .bind(&input)
+        .fetch_all(&pool)
+        .await?;
+
+    // [1] SQLx query_as function (insecure)
+    let users: Vec<User> = sqlx::query_as::<_, User>(
+            &format!("SELECT * FROM users WHERE username = '{}'", &input)
+        )
+        .fetch_all(&pool)
+        .await?;
+    
+    // [2]
+    let query = format!("SELECT * FROM users WHERE username = '{}'", &input);
+    let users: Vec<User> = sqlx::query_as::<_, User>(&query)
+        .fetch_all(&pool)
+        .await?;
+
+    // Wide card input
+    let input_wide: String = format!("%{input}%");
+
+    // Print all the users
     for user in users {
         println!(" >> {:?}", user);
     }
